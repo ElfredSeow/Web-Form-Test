@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Submission Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Admission Submission</h2>
+        <form id="admissionForm" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    placeholder="Enter your full name"
+                >
+            </div>
+            <div>
+                <label for="admissionNumber" class="block text-sm font-medium text-gray-700">Admission Number</label>
+                <input 
+                    type="text" 
+                    id="admissionNumber" 
+                    name="admissionNumber" 
+                    required 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    placeholder="Enter your admission number"
+                >
+            </div>
+            <div id="errorMessage" class="text-red-500 text-sm hidden"></div>
+            <button 
+                type="submit" 
+                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+                Submit Admission
+            </button>
+        </form>
+        <div id="successMessage" class="text-green-500 text-sm mt-4 text-center hidden">
+            Submission Successful!
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('admissionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('name').value;
+            const admissionNumber = document.getElementById('admissionNumber').value;
+            
+            // Basic validation
+            const errorMessageEl = document.getElementById('errorMessage');
+            const successMessageEl = document.getElementById('successMessage');
+            
+            // Reset previous messages
+            errorMessageEl.textContent = '';
+            errorMessageEl.classList.add('hidden');
+            successMessageEl.classList.add('hidden');
+            
+            // Validate inputs
+            if (!name || !admissionNumber) {
+                errorMessageEl.textContent = 'Please fill in all fields';
+                errorMessageEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Prepare submission data
+            const submissionData = {
+                name: name,
+                admissionNumber: admissionNumber,
+                submissionDate: new Date().toISOString()
+            };
+            
+            // TODO: Replace with your actual Power Apps webhook/API endpoint
+            const apiEndpoint = 'https://prod-64.southeastasia.logic.azure.com:443/workflows/943287c41b534886ab782a66991df722/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QxWY_rcF0rxhMdjcmdlvGD0d533lm_-uBWFSuWHYzKw';
+            
+            // Submit data
+            axios.post(apiEndpoint, submissionData)
+                .then(response => {
+                    // Clear form
+                    document.getElementById('name').value = '';
+                    document.getElementById('admissionNumber').value = '';
+                    
+                    // Show success message
+                    successMessageEl.classList.remove('hidden');
+                })
+                .catch(error => {
+                    // Handle error
+                    errorMessageEl.textContent = 'Submission failed. Please try again.';
+                    errorMessageEl.classList.remove('hidden');
+                    console.error('Submission error:', error);
+                });
+        });
+    </script>
+</body>
+</html>
